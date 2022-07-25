@@ -3,7 +3,7 @@ const router = express.Router();
 const Comment = require("../schemas/comment");
 
 // 해당 게시글의 댓글 목록보기
-router.get("/comments/:postId", async (req, res) => {
+router.get("/:postId", async (req, res) => {
   const postId = req.params.postId;
   const datas = await Comment.find(
     { postId: postId },
@@ -25,7 +25,7 @@ router.get("/comments/:postId", async (req, res) => {
 });
 
 // 해당 게시물에 댓글 달기
-router.post("/comments/:postId", async (req, res) => {
+router.post("/:postId", async (req, res) => {
   const postId = req.params.postId;
   const { user, password, content } = req.body;
   const createdAt = new Date();
@@ -45,7 +45,7 @@ router.post("/comments/:postId", async (req, res) => {
 });
 
 // 해당 댓글의 내용 수정
-router.put("/comments/:commentId", async (req, res) => {
+router.put("/:commentId", async (req, res) => {
   const commentId = req.params.commentId;
   const { password, content } = req.body;
 
@@ -68,7 +68,7 @@ router.put("/comments/:commentId", async (req, res) => {
 });
 
 // 해당 댓글 삭제
-router.delete("/comments/:commentId", async (req, res) => {
+router.delete("/:commentId", async (req, res) => {
   const { commentId } = req.params;
   const { password } = req.body;
 

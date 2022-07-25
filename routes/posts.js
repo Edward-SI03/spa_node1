@@ -3,7 +3,7 @@ const router = express.Router();
 const Post = require("../schemas/post");
 
 // 게시물 조회
-router.get("/posts", async (req, res) => {
+router.get("/", async (req, res) => {
   const datas = await Post.find(
     {},
     { __v: false, password: false, content: false }
@@ -24,26 +24,32 @@ router.get("/posts", async (req, res) => {
 });
 
 // 게시물 상세 조회
-router.get("/posts/:postId", async (req, res) => {
+router.get("/:postId", async (req, res) => {
   const postId = req.params.postId;
   const datas = await Post.findOne(
     { _id: postId },
     { __v: false, password: false }
   );
 
-  res.json({
-    data: {
-      postId: datas._id,
-      user: datas.user,
-      title: datas.title,
-      content: datas.content,
-      createdAt: datas.createdAt,
-    },
-  });
+  const thisPost = await Post.findOne({ _id: postId });
+
+  if (thisPost === null) {
+    res.status(400).json({ message: "해당 게시물을 찾을 수 없습니다." });
+  } else {
+    res.json({
+      data: {
+        postId: datas._id,
+        user: datas.user,
+        title: datas.title,
+        content: datas.content,
+        createdAt: datas.createdAt,
+      },
+    });
+  }
 });
 
 // 게시물 작성
-router.post("/posts", async (req, res) => {
+router.post("/", async (req, res) => {
   const { user, password, title, content } = req.body;
   const createdAt = new Date();
   console.log(createdAt);
@@ -59,7 +65,7 @@ router.post("/posts", async (req, res) => {
 });
 
 // 게시물 수정
-router.put("/posts/:postId", async (req, res) => {
+router.put("/:postId", async (req, res) => {
   const postId = req.params.postId;
   const { password, title, content } = req.body;
 
@@ -78,7 +84,7 @@ router.put("/posts/:postId", async (req, res) => {
 });
 
 // 게시물 삭제
-router.delete("/posts/:postId", async (req, res) => {
+router.delete("/:postId", async (req, res) => {
   const postId = req.params.postId;
   const { password } = req.body;
   console.log(password);

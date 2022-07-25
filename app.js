@@ -13,11 +13,8 @@ app.use((req, res, next) => {
 
 app.use(express.json())
 
-
-
-const postsRouter = require("./routes/posts");
-const commentsRouter = require("./routes/comments")
-app.use("/", [postsRouter, commentsRouter]);
+const Router = require("./routes/index")
+app.use("/", [Router])
 
 app.get("/", (req, res) => {
   res.send("hello");

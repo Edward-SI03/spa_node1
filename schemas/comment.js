@@ -5,9 +5,9 @@ const commentSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  commentId: {
-    type: String,
-  },
+  // commentId: {
+  //   type: String,
+  // },
   user: {
     type: String,
     require: true,
