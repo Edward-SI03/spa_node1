@@ -12,7 +12,7 @@
 2. 서비스 완성
 
 |기능|API URL|Method|req|res|예외처리|
-|------|---|---|---|---------|---------|
+|---|---|---|---|---|---|
 |게시글 조회|/posts|GET|---|"postId": "62d6d12cd88cadd496a9e54e",|---|
 |작성 날짜 기준으로 내림차순 정렬|---|---|---|"user": "스파르타",|---|
 |---|---|---|---|"title": "제목1",|---|
@@ -51,3 +51,31 @@
 |게시글 댓글 삭제|/comments/:commentId|DELETE|"password": "1234"|"message": "댓글을 삭제하였습니다."|postsId 유효성 검사,|
 |비밀번호 일치시 삭제|---|---|---|---|해당 게시물 유무 확인,|
 |---|---|---|---|---|비밀번호 확인|
+
+
+3. Directory Structure
+
+.
+
+├── app.js
+
+├── routes
+
+│   ├── index.js
+
+│   ├── comments.js
+
+│   └── posts.js
+
+└── schemas
+
+    ├── index.js
+
+    ├── comment.js
+
+    └── post.js
+ 
+
+ 4. AWS 배포
+ 
+ https://jinyeop.shop
