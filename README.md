@@ -2,14 +2,14 @@
 "Node.js와 express로 로그인 기능이 없는 나만의 항해 블로그 백엔드 서버 만들기"
 
 
-1. 과제 목표
+## 1.  과제 목표
 
  - 서비스 완성
  - Directory Structure
  - AWS 배포
 
 
-2. 서비스 완성
+## 2.  서비스 완성
 
 |기능|API URL|Method|req|res|예외처리|
 |---|---|---|---|---|---|
@@ -53,9 +53,8 @@
 |---|---|---|---|---|비밀번호 확인|
 
 
-3. Directory Structure
+## 3.  Directory Structure
 
-.
 
 ├── app.js
 
@@ -76,6 +75,6 @@
     └── post.js
  
 
- 4. AWS 배포
- 
+ ## 4.  AWS 배포
+
  https://jinyeop.shop
