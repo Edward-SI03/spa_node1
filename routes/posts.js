@@ -4,20 +4,23 @@ const Post = require("../schemas/post");
 
 // 게시물 조회
 router.get("/posts", async (req, res) => {
-  const data = await Post.find(
+  const datas = await Post.find(
     {},
     { __v: false, password: false, content: false }
   ).sort({
     createdAt: "desc",
   });
 
-  // data.map(e=>{
-  //   const test = e._id
-  //   console.log(test)
-  // })
-  
-
-  res.json({ data: data });
+  res.json({
+    data: datas.map((e) => {
+      return {
+        postId: e._id,
+        user: e.user,
+        title: e.title,
+        createdAt: e.createdAt,
+      };
+    }),
+  });
 });
 
 // 게시물 상세 조회
@@ -28,7 +31,15 @@ router.get("/posts/:postId", async (req, res) => {
     { __v: false, password: false }
   );
 
-  res.json({ datas });
+  res.json({
+    data: {
+      postId: datas._id,
+      user: datas.user,
+      title: datas.title,
+      content: datas.content,
+      createdAt: datas.createdAt,
+    },
+  });
 });
 
 // 게시물 작성

@@ -5,13 +5,23 @@ const Comment = require("../schemas/comment");
 // 해당 게시글의 댓글 목록보기
 router.get("/comments/:postId", async (req, res) => {
   const postId = req.params.postId;
-  const data = await Comment.find(
+  const datas = await Comment.find(
     { postId: postId },
     { __v: false, password: false, postId: false }
   ).sort({
     createdAt: "desc",
   });
-  res.json({ data });
+
+  res.json({
+    data: datas.map((e) => {
+      return {
+        commentId: e._id,
+        user: e.user,
+        content: e.content,
+        createdAt: e.createdAt,
+      };
+    }),
+  });
 });
 
 // 해당 게시물에 댓글 달기
