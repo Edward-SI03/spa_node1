@@ -1,27 +1,38 @@
 const express = require("express");
 const router = express.Router();
 const Comment = require("../schemas/comment");
+const Post = require("../schemas/post");
 
 // 해당 게시글의 댓글 목록보기
 router.get("/:postId", async (req, res) => {
   const postId = req.params.postId;
-  const datas = await Comment.find(
-    { postId: postId },
-    { __v: false, password: false, postId: false }
-  ).sort({
-    createdAt: "desc",
-  });
 
-  res.json({
-    data: datas.map((e) => {
-      return {
-        commentId: e._id,
-        user: e.user,
-        content: e.content,
-        createdAt: e.createdAt,
-      };
-    }),
-  });
+  if (postId.match(/^[0-9a-fA-F]{24}$/)) {
+    const realPost = await Post.findOne({ _id: postId });
+    if (realPost === null) {
+      res.status(400).json({ message: "해당 게시물을 찾을 수 없습니다." });
+    } else {
+      const datas = await Comment.find(
+        { postId: postId },
+        { __v: false, password: false, postId: false }
+      ).sort({
+        createdAt: "desc",
+      });
+
+      res.json({
+        data: datas.map((e) => {
+          return {
+            commentId: e._id,
+            user: e.user,
+            content: e.content,
+            createdAt: e.createdAt,
+          };
+        }),
+      });
+    }
+  } else {
+    res.status(400).json({ message: "id 형식이 맞지 않습니다." });
+  }
 });
 
 // 해당 게시물에 댓글 달기
@@ -30,17 +41,26 @@ router.post("/:postId", async (req, res) => {
   const { user, password, content } = req.body;
   const createdAt = new Date();
 
-  if (content === "") {
-    res.status(400).json({ message: "댓글 내용을 입력해주세요." });
+  if (postId.match(/^[0-9a-fA-F]{24}$/)) {
+    const realPost = await Post.findOne({ _id: postId });
+    if (realPost === null) {
+      res.status(400).json({ message: "해당 게시물을 찾을 수 없습니다." });
+    } else {
+      if (content === "") {
+        res.status(400).json({ message: "댓글 내용을 입력해주세요." });
+      } else {
+        const createComment = await Comment.create({
+          postId,
+          user,
+          password,
+          content,
+          createdAt,
+        });
+        res.json({ message: "댓글을 생성하였습니다." });
+      }
+    }
   } else {
-    const createComment = await Comment.create({
-      postId,
-      user,
-      password,
-      content,
-      createdAt,
-    });
-    res.json({ message: "댓글을 생성하였습니다." });
+    res.status(400).json({ message: "id 형식이 맞지 않습니다." });
   }
 });
 
@@ -49,21 +69,25 @@ router.put("/:commentId", async (req, res) => {
   const commentId = req.params.commentId;
   const { password, content } = req.body;
 
-  const thisComment = await Comment.findOne({ _id: commentId });
+  if (commentId.match(/^[0-9a-fA-F]{24}$/)) {
+    const thisComment = await Comment.findOne({ _id: commentId });
 
-  if (thisComment === null) {
-    res.status(400).json({ message: "해당 댓글을 찾을 수 없습니다." });
-  } else {
-    if (content === "") {
-      res.status(400).json({ message: "댓글 내용을 입력해주세요." });
+    if (thisComment === null) {
+      res.status(400).json({ message: "해당 댓글을 찾을 수 없습니다." });
     } else {
-      if (Number(password) === thisComment.password) {
-        await Comment.updateOne({ _id: commentId }, { $set: { content } });
-        res.json({ message: "댓글을 수정하였습니다." });
+      if (content === "") {
+        res.status(400).json({ message: "댓글 내용을 입력해주세요." });
       } else {
-        res.status(400).json({ message: "비밀번호가 맞지 않습니다." });
+        if (Number(password) === thisComment.password) {
+          await Comment.updateOne({ _id: commentId }, { $set: { content } });
+          res.json({ message: "댓글을 수정하였습니다." });
+        } else {
+          res.status(400).json({ message: "비밀번호가 맞지 않습니다." });
+        }
       }
     }
+  } else {
+    res.status(400).json({ message: "id 형식이 맞지 않습니다." });
   }
 });
 
@@ -72,17 +96,21 @@ router.delete("/:commentId", async (req, res) => {
   const { commentId } = req.params;
   const { password } = req.body;
 
-  const thisComment = await Comment.findOne({ _id: commentId });
+  if (commentId.match(/^[0-9a-fA-F]{24}$/)) {
+    const thisComment = await Comment.findOne({ _id: commentId });
 
-  if (thisComment === null) {
-    res.status(400).json({ message: "해당 댓글을 찾을 수 없습니다." });
-  } else {
-    if (Number(password) === thisComment.password) {
-      await Comment.deleteOne({ _id: commentId });
-      res.json({ message: "댓글을 삭제하였습니다." });
+    if (thisComment === null) {
+      res.status(400).json({ message: "해당 댓글을 찾을 수 없습니다." });
     } else {
-      res.status(400).json({ message: "비밀번호가 맞지 않습니다." });
+      if (Number(password) === thisComment.password) {
+        await Comment.deleteOne({ _id: commentId });
+        res.json({ message: "댓글을 삭제하였습니다." });
+      } else {
+        res.status(400).json({ message: "비밀번호가 맞지 않습니다." });
+      }
     }
+  } else {
+    res.status(400).json({ message: "id 형식이 맞지 않습니다." });
   }
 });
 

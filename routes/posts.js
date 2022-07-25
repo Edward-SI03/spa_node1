@@ -26,25 +26,30 @@ router.get("/", async (req, res) => {
 // 게시물 상세 조회
 router.get("/:postId", async (req, res) => {
   const postId = req.params.postId;
-  const datas = await Post.findOne(
-    { _id: postId },
-    { __v: false, password: false }
-  );
 
-  const thisPost = await Post.findOne({ _id: postId });
+  if (postId.match(/^[0-9a-fA-F]{24}$/)) {
+    const datas = await Post.findOne(
+      { _id: postId },
+      { __v: false, password: false }
+    );
 
-  if (thisPost === null) {
-    res.status(400).json({ message: "해당 게시물을 찾을 수 없습니다." });
+    const thisPost = await Post.findOne({ _id: postId });
+
+    if (thisPost === null) {
+      res.status(400).json({ message: "해당 게시물을 찾을 수 없습니다." });
+    } else {
+      res.json({
+        data: {
+          postId: datas._id,
+          user: datas.user,
+          title: datas.title,
+          content: datas.content,
+          createdAt: datas.createdAt,
+        },
+      });
+    }
   } else {
-    res.json({
-      data: {
-        postId: datas._id,
-        user: datas.user,
-        title: datas.title,
-        content: datas.content,
-        createdAt: datas.createdAt,
-      },
-    });
+    res.status(400).json({ message: "id 형식이 맞지 않습니다." });
   }
 });
 
@@ -52,7 +57,6 @@ router.get("/:postId", async (req, res) => {
 router.post("/", async (req, res) => {
   const { user, password, title, content } = req.body;
   const createdAt = new Date();
-  console.log(createdAt);
 
   const createPost = await Post.create({
     user,
@@ -69,17 +73,21 @@ router.put("/:postId", async (req, res) => {
   const postId = req.params.postId;
   const { password, title, content } = req.body;
 
-  const thisPost = await Post.findOne({ _id: postId });
+  if (postId.match(/^[0-9a-fA-F]{24}$/)) {
+    const thisPost = await Post.findOne({ _id: postId });
 
-  if (thisPost === null) {
-    res.status(400).json({ message: "해당 게시물을 찾을 수 없습니다." });
-  } else {
-    if (Number(password) === thisPost.password) {
-      await Post.updateOne({ _id: postId }, { $set: { title, content } });
-      res.json({ message: "게시글을 수정하였습니다." });
+    if (thisPost === null) {
+      res.status(400).json({ message: "해당 게시물을 찾을 수 없습니다." });
     } else {
-      res.status(400).json({ message: "비밀번호가 맞지 않습니다." });
+      if (Number(password) === thisPost.password) {
+        await Post.updateOne({ _id: postId }, { $set: { title, content } });
+        res.json({ message: "게시글을 수정하였습니다." });
+      } else {
+        res.status(400).json({ message: "비밀번호가 맞지 않습니다." });
+      }
     }
+  } else {
+    res.status(400).json({ message: "id 형식이 맞지 않습니다." });
   }
 });
 
@@ -87,19 +95,22 @@ router.put("/:postId", async (req, res) => {
 router.delete("/:postId", async (req, res) => {
   const postId = req.params.postId;
   const { password } = req.body;
-  console.log(password);
 
-  const thisPost = await Post.findOne({ _id: postId });
+  if (postId.match(/^[0-9a-fA-F]{24}$/)) {
+    const thisPost = await Post.findOne({ _id: postId });
 
-  if (thisPost === null) {
-    res.status(400).json({ message: "해당 게시물을 찾을 수 없습니다." });
-  } else {
-    if (Number(password) === thisPost.password) {
-      await Post.deleteOne({ _id: postId });
-      res.json({ message: "게시글을 삭제하였습니다." });
+    if (thisPost === null) {
+      res.status(400).json({ message: "해당 게시물을 찾을 수 없습니다." });
     } else {
-      res.status(400).json({ message: "비밀번호가 맞지 않습니다." });
+      if (Number(password) === thisPost.password) {
+        await Post.deleteOne({ _id: postId });
+        res.json({ message: "게시글을 삭제하였습니다." });
+      } else {
+        res.status(400).json({ message: "비밀번호가 맞지 않습니다." });
+      }
     }
+  } else {
+    res.status(400).json({ message: "id 형식이 맞지 않습니다." });
   }
 });
 
