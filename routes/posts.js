@@ -33,9 +33,7 @@ router.get("/:postId", async (req, res) => {
       { __v: false, password: false }
     );
 
-    const thisPost = await Post.findOne({ _id: postId });
-
-    if (thisPost === null) {
+    if (datas === null) {
       res.status(400).json({ message: "해당 게시물을 찾을 수 없습니다." });
     } else {
       res.json({

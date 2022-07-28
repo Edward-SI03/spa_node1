@@ -8,7 +8,7 @@ const postSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  password:{
+  password: {
     type: Number,
     required: true,
   },
@@ -21,7 +21,8 @@ const postSchema = mongoose.Schema({
     required: true,
   },
   createdAt: {
-    type: Date
+    type: Date,
+    default: Date.now(),
   },
 });
 
