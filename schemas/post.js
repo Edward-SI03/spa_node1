@@ -4,12 +4,12 @@ const postSchema = mongoose.Schema({
   // postId: {
   //   type: String,
   // },
-  user: {
+  userId: {
     type: String,
     required: true,
   },
-  password: {
-    type: Number,
+  nickname: {
+    type: String,
     required: true,
   },
   title: {
@@ -23,6 +23,12 @@ const postSchema = mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now(),
+  },
+  updatedAt: {
+    type: Date,
+  },
+  likes: {
+    type: Number,
   },
 });
 

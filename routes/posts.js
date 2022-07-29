@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Post = require("../schemas/post");
+const loginMiddleware = require("../middleware/login-middleware");
 
 // 게시물 조회
 router.get("/", async (req, res) => {
@@ -52,16 +53,27 @@ router.get("/:postId", async (req, res) => {
 });
 
 // 게시물 작성
-router.post("/", async (req, res) => {
-  const { user, password, title, content } = req.body;
+router.post("/", loginMiddleware, async (req, res) => {
+  const { user } = res.locals;
+  console.log(user)
+  if(!user){
+    res.status(400).json({ message: "로그인 후 사용 가능합니다." });
+    return;
+  }
+
+  const { title, content } = req.body;
   const createdAt = new Date();
+  const updatedAt = new Date();
+  const likes = 0
 
   const createPost = await Post.create({
-    user,
-    password,
+    userId: user._id,
+    nickname: user.nickname,
     title,
     content,
     createdAt,
+    updatedAt,
+    likes
   });
   res.json({ message: "게시글을 생성하였습니다." });
 });
