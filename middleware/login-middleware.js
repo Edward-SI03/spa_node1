@@ -10,7 +10,7 @@ module.exports = (req, res, next) => {
 
     if (tokenType !== "Bearer") {
       res.status(401).send({
-        errMessage: "로그인이 필요합니다.",
+        errMessage: "Bearer토큰이 없습니다.",
       });
       return;
     }
@@ -23,7 +23,7 @@ module.exports = (req, res, next) => {
       });
     } catch (err) {
       res.status(401).send({
-        errMessage: "로그인이 필요합니다.2",
+        errMessage: "토큰의 유효성을 확인 할 수 없습니다.",
       });
       return;
     }

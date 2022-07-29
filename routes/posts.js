@@ -56,7 +56,7 @@ router.get("/:postId", async (req, res) => {
       return;
     }
   } else {
-    res.status(400).json({ message: "id 형식이 맞지 않습니다." });
+    res.status(400).json({ message: "postId 형식이 맞지 않습니다." });
     return;
   }
 });
@@ -120,7 +120,7 @@ router.put("/:postId", loginMiddleware, async (req, res) => {
       }
     }
   } else {
-    res.status(400).json({ message: "id 형식이 맞지 않습니다." });
+    res.status(400).json({ message: "postId 형식이 맞지 않습니다." });
     return;
   }
 });
@@ -153,7 +153,7 @@ router.delete("/:postId", loginMiddleware, async (req, res) => {
       }
     }
   } else {
-    res.status(400).json({ message: "id 형식이 맞지 않습니다." });
+    res.status(400).json({ message: "postId 형식이 맞지 않습니다." });
     return;
   }
 });

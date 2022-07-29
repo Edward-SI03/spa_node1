@@ -8,19 +8,23 @@ const commentSchema = mongoose.Schema({
   // commentId: {
   //   type: String,
   // },
-  user: {
+  userId: {
     type: String,
-    require: true,
-  },
-  password: {
-    type: Number,
     required: true,
   },
-  content: {
+  nickname: {
+    type: String,
+    required: true,
+  },
+  comment: {
     type: String,
     require: true,
   },
   createdAt: {
+    type: Date,
+    default: Date.now(),
+  },
+  updatedAt: {
     type: Date,
   },
 });

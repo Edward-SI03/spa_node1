@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const userSchema = mongoose.Schema({
-  // postId: {
+  // userId: {
   //   type: String,
   // },
   nickname: {
@@ -9,7 +9,7 @@ const userSchema = mongoose.Schema({
     required: true,
   },
   password: {
-    type: Number,
+    type: String,
     required: true,
   },
 });

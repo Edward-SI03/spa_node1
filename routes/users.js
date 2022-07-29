@@ -65,6 +65,7 @@ router.post("/login", loginMiddleware, async (req, res) => {
     return;
   }
   try {
+    const options = {expiresIn: '1d'};
     const { nickname, password } = await signupSchema.validateAsync(req.body);
 
     const user = await User.findOne({ nickname, password });
@@ -73,7 +74,7 @@ router.post("/login", loginMiddleware, async (req, res) => {
       res.status(400).json({ message: "닉네임 또는 패스워드를 확인해주세요." });
       return;
     } else {
-      const token = jwt.sign({ userId: user.userId, nickname }, secretKey);
+      const token = jwt.sign({ userId: user.userId, nickname }, secretKey, options);
       res.cookie("token", token);
       res.json({ token: token });
     }
