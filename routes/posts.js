@@ -16,9 +16,12 @@ router.get("/", async (req, res) => {
     data: datas.map((e) => {
       return {
         postId: e._id,
-        user: e.user,
+        userId: e.userId,
+        nickname: e.nickname,
         title: e.title,
         createdAt: e.createdAt,
+        updatedAt: e.updatedAt,
+        likes: e.likes,
       };
     }),
   });
@@ -36,35 +39,40 @@ router.get("/:postId", async (req, res) => {
 
     if (datas === null) {
       res.status(400).json({ message: "해당 게시물을 찾을 수 없습니다." });
+      return;
     } else {
       res.json({
         data: {
           postId: datas._id,
-          user: datas.user,
+          userId: datas.userId,
+          nickname: datas.nickname,
           title: datas.title,
           content: datas.content,
           createdAt: datas.createdAt,
+          updatedAt: datas.updatedAt,
+          likes: datas.likes,
         },
       });
+      return;
     }
   } else {
     res.status(400).json({ message: "id 형식이 맞지 않습니다." });
+    return;
   }
 });
 
 // 게시물 작성
 router.post("/", loginMiddleware, async (req, res) => {
   const { user } = res.locals;
-  console.log(user)
-  if(!user){
-    res.status(400).json({ message: "로그인 후 사용 가능합니다." });
+  if (!user) {
+    res.status(400).json({ message: "로그인이 필요합니다." });
     return;
   }
 
   const { title, content } = req.body;
   const createdAt = new Date();
   const updatedAt = new Date();
-  const likes = 0
+  const likes = 0;
 
   const createPost = await Post.create({
     userId: user._id,
@@ -73,54 +81,80 @@ router.post("/", loginMiddleware, async (req, res) => {
     content,
     createdAt,
     updatedAt,
-    likes
+    likes,
   });
   res.json({ message: "게시글을 생성하였습니다." });
+  return;
 });
 
 // 게시물 수정
-router.put("/:postId", async (req, res) => {
+router.put("/:postId", loginMiddleware, async (req, res) => {
+  const { user } = res.locals;
+
+  if (!user) {
+    res.status(400).json({ message: "로그인이 필요합니다." });
+    return;
+  }
+
   const postId = req.params.postId;
-  const { password, title, content } = req.body;
+  const { title, content } = req.body;
+  const updatedAt = new Date();
 
   if (postId.match(/^[0-9a-fA-F]{24}$/)) {
     const thisPost = await Post.findOne({ _id: postId });
 
     if (thisPost === null) {
       res.status(400).json({ message: "해당 게시물을 찾을 수 없습니다." });
+      return;
     } else {
-      if (Number(password) === thisPost.password) {
-        await Post.updateOne({ _id: postId }, { $set: { title, content } });
+      if (user._id.toString() === thisPost.userId) {
+        await Post.updateOne(
+          { _id: postId },
+          { $set: { title, content, updatedAt } }
+        );
         res.json({ message: "게시글을 수정하였습니다." });
+        return;
       } else {
-        res.status(400).json({ message: "비밀번호가 맞지 않습니다." });
+        res.status(400).json({ message: "작성자가 다릅니다." });
+        return;
       }
     }
   } else {
     res.status(400).json({ message: "id 형식이 맞지 않습니다." });
+    return;
   }
 });
 
 // 게시물 삭제
-router.delete("/:postId", async (req, res) => {
+router.delete("/:postId", loginMiddleware, async (req, res) => {
+  const { user } = res.locals;
+
+  if (!user) {
+    res.status(400).json({ message: "로그인이 필요합니다." });
+    return;
+  }
+
   const postId = req.params.postId;
-  const { password } = req.body;
 
   if (postId.match(/^[0-9a-fA-F]{24}$/)) {
     const thisPost = await Post.findOne({ _id: postId });
 
     if (thisPost === null) {
       res.status(400).json({ message: "해당 게시물을 찾을 수 없습니다." });
+      return;
     } else {
-      if (Number(password) === thisPost.password) {
+      if (user._id.toString() === thisPost.userId) {
         await Post.deleteOne({ _id: postId });
         res.json({ message: "게시글을 삭제하였습니다." });
+        return;
       } else {
-        res.status(400).json({ message: "비밀번호가 맞지 않습니다." });
+        res.status(400).json({ message: "작성자가 다릅니다." });
+        return;
       }
     }
   } else {
     res.status(400).json({ message: "id 형식이 맞지 않습니다." });
+    return;
   }
 });
 

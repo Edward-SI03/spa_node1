@@ -15,7 +15,7 @@ app.use(express.json());
 // app.use(express.urlencoded({ extended: false }));
 
 const Router = require("./routes/index");
-app.use("/", [Router]);
+app.use(Router);
 
 app.get("/", (req, res) => {
   res.json({

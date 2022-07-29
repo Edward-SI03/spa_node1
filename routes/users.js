@@ -16,7 +16,13 @@ const signupSchema = Joi.object({
   password: Joi.string().required().min(4).alphanum(),
   confirm: Joi.string().required().min(4).alphanum(),
 });
-router.post("/signup", async (req, res) => {
+router.post("/signup", loginMiddleware, async (req, res) => {
+  const { user } = res.locals;
+
+  if (user) {
+    res.status(400).json({ message: "이미 로그인이 되어있습니다." });
+    return;
+  }
   try {
     const { nickname, password, confirm } = await signupSchema.validateAsync(
       req.body
@@ -27,7 +33,9 @@ router.post("/signup", async (req, res) => {
       return;
     }
     if (password.includes(nickname)) {
-      res.status(400).json({ message: "비밀번호에 닉네임이 들어갈 수 없습니다." });
+      res
+        .status(400)
+        .json({ message: "비밀번호에 닉네임이 들어갈 수 없습니다." });
       return;
     }
 
@@ -49,11 +57,15 @@ router.post("/signup", async (req, res) => {
 });
 
 // 로그인
-router.post("/login", async (req, res) => {
+router.post("/login", loginMiddleware, async (req, res) => {
+  const { user } = res.locals;
+
+  if (user) {
+    res.status(400).json({ message: "이미 로그인이 되어있습니다." });
+    return;
+  }
   try {
-    const { nickname, password } = await signupSchema.validateAsync(
-        req.body
-      );
+    const { nickname, password } = await signupSchema.validateAsync(req.body);
 
     const user = await User.findOne({ nickname, password });
 
