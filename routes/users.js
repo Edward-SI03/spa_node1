@@ -27,6 +27,7 @@ router.post("/signup", loginMiddleware, async (req, res) => {
     const { nickname, password, confirm } = await signupSchema.validateAsync(
       req.body
     );
+    const likePosts = [];
 
     if (password !== confirm) {
       res.status(400).json({ message: "비밀번호가 일치하지 않습니다." });
@@ -45,7 +46,7 @@ router.post("/signup", loginMiddleware, async (req, res) => {
       res.status(400).json({ message: "중복된 닉네임입니다." });
       return;
     } else {
-      await User.create({ nickname, password });
+      await User.create({ nickname, password, likePosts });
       res.status(201).json({ message: "회원 가입에 성공하였습니다." });
       return;
     }
@@ -65,7 +66,7 @@ router.post("/login", loginMiddleware, async (req, res) => {
     return;
   }
   try {
-    const options = {expiresIn: '1d'};
+    const options = { expiresIn: "1d" };
     const { nickname, password } = await signupSchema.validateAsync(req.body);
 
     const user = await User.findOne({ nickname, password });
@@ -74,7 +75,11 @@ router.post("/login", loginMiddleware, async (req, res) => {
       res.status(400).json({ message: "닉네임 또는 패스워드를 확인해주세요." });
       return;
     } else {
-      const token = jwt.sign({ userId: user.userId, nickname }, secretKey, options);
+      const token = jwt.sign(
+        { userId: user.userId, nickname },
+        secretKey,
+        options
+      );
       res.cookie("token", token);
       res.json({ token: token });
     }
