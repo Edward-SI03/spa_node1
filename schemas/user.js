@@ -12,6 +12,9 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true,
   },
+  likePosts: {
+    type: Object,
+  },
 });
 userSchema.virtual("userId").get(function () {
   return this._id.toHexString();

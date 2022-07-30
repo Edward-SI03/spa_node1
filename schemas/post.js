@@ -27,6 +27,9 @@ const postSchema = mongoose.Schema({
   updatedAt: {
     type: Date,
   },
+  likeUsers: {
+    type: Object,
+  },
   likes: {
     type: Number,
   },
