@@ -1,30 +1,32 @@
 const express = require("express");
 const router = express.Router();
-const Comment = require("../schemas/comment");
-const Post = require("../schemas/post");
+// const Comment = require("../schemas/comment");
+// const Post = require("../schemas/post");
+const { Post, Comment } = require("../models");
 const loginMiddleware = require("../middleware/login-middleware");
 
 // 해당 게시글의 댓글 목록보기
 router.get("/:postId", async (req, res) => {
   const postId = req.params.postId;
 
-  if (postId.match(/^[0-9a-fA-F]{24}$/)) {
-    const realPost = await Post.findOne({ _id: postId });
+  if (postId.match(/^[0-9]$/)) {
+    const realPost = await Post.findOne({ where: { postId } });
     if (realPost === null) {
       res.status(400).json({ message: "해당 게시물을 찾을 수 없습니다." });
       return;
     } else {
-      const datas = await Comment.find(
-        { postId: postId },
-        { __v: false, password: false, postId: false }
-      ).sort({
-        createdAt: "desc",
-      });
+      const datas = await Comment.findAll(
+        { where: { postId }, order: [["createdAt", "DESC"]] }
+        // { __v: false, password: false, postId: false }
+      );
+      // .sort({
+      //   createdAt: "desc",
+      // });
 
       res.json({
         data: datas.map((e) => {
           return {
-            commentId: e._id,
+            commentId: e.commentId,
             userId: e.userId,
             nickname: e.nickname,
             comment: e.comment,
@@ -51,11 +53,11 @@ router.post("/:postId", loginMiddleware, async (req, res) => {
 
   const postId = req.params.postId;
   const { comment } = req.body;
-  const createdAt = new Date();
-  const updatedAt = new Date();
+  // const createdAt = new Date();
+  // const updatedAt = new Date();
 
-  if (postId.match(/^[0-9a-fA-F]{24}$/)) {
-    const realPost = await Post.findOne({ _id: postId });
+  if (postId.match(/^[0-9]$/)) {
+    const realPost = await Post.findOne({ where: { postId } });
     if (realPost === null) {
       res.status(400).json({ message: "해당 게시물을 찾을 수 없습니다." });
       return;
@@ -66,11 +68,11 @@ router.post("/:postId", loginMiddleware, async (req, res) => {
       } else {
         const createComment = await Comment.create({
           postId,
-          userId: user._id,
+          userId: user.userId,
           nickname: user.nickname,
           comment,
-          createdAt,
-          updatedAt,
+          // createdAt,
+          // updatedAt,
         });
         res.json({ message: "댓글을 생성하였습니다." });
         return;
@@ -92,10 +94,10 @@ router.put("/:commentId", loginMiddleware, async (req, res) => {
 
   const commentId = req.params.commentId;
   const { comment } = req.body;
-  const updatedAt = new Date();
+  // const updatedAt = new Date();
 
-  if (commentId.match(/^[0-9a-fA-F]{24}$/)) {
-    const thisComment = await Comment.findOne({ _id: commentId });
+  if (commentId.match(/^[0-9]$/)) {
+    const thisComment = await Comment.findOne({ where: { commentId } });
 
     if (thisComment === null) {
       res.status(400).json({ message: "해당 댓글을 찾을 수 없습니다." });
@@ -105,8 +107,8 @@ router.put("/:commentId", loginMiddleware, async (req, res) => {
         res.status(400).json({ message: "댓글 내용을 입력해주세요." });
         return;
       } else {
-        if (user._id.toString() === thisComment.userId) {
-          await Comment.updateOne({ _id: commentId }, { $set: { comment, updatedAt } });
+        if (user.userId.toString() === thisComment.userId) {
+          await Comment.update({ comment }, { where: { commentId } });
           res.json({ message: "댓글을 수정하였습니다." });
           return;
         } else {
@@ -128,17 +130,17 @@ router.delete("/:commentId", loginMiddleware, async (req, res) => {
     res.status(400).json({ message: "로그인이 필요합니다." });
     return;
   }
-  
+
   const { commentId } = req.params;
 
-  if (commentId.match(/^[0-9a-fA-F]{24}$/)) {
-    const thisComment = await Comment.findOne({ _id: commentId });
+  if (commentId.match(/^[0-9]$/)) {
+    const thisComment = await Comment.findOne({ where:{commentId} });
 
     if (thisComment === null) {
       res.status(400).json({ message: "해당 댓글을 찾을 수 없습니다." });
     } else {
-      if (user._id.toString() === thisComment.userId) {
-        await Comment.deleteOne({ _id: commentId });
+      if (user.userId.toString() === thisComment.userId) {
+        await Comment.destroy({ where:{commentId} });
         res.json({ message: "댓글을 삭제하였습니다." });
       } else {
         res.status(400).json({ message: "작성자가 다릅니다." });

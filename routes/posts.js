@@ -1,22 +1,24 @@
 const express = require("express");
 const router = express.Router();
-const Post = require("../schemas/post");
+// const Post = require("../schemas/post");
+const { Post } = require("../models");
 const loginMiddleware = require("../middleware/login-middleware");
 
 // 게시물 조회
 router.get("/", async (req, res) => {
-  const datas = await Post.find(
-    {},
-    { __v: false, password: false, content: false }
-  ).sort({
-    createdAt: "desc",
-  });
-  console.log(datas)
+  const datas = await Post.findAll(
+    { order: [["createdAt", "DESC"]] }
+    // { __v: false, password: false, content: false }
+  );
+  // .sort({
+  //   createdAt: "desc",
+  // });
+  console.log(datas);
 
   res.json({
     data: datas.map((e) => {
       return {
-        postId: e._id,
+        postId: e.postId,
         userId: e.userId,
         nickname: e.nickname,
         title: e.title,
@@ -37,10 +39,10 @@ router.get("/:postId", async (req, res, next) => {
     return;
   }
 
-  if (postId.match(/^[0-9a-fA-F]{24}$/)) {
+  if (postId.match(/^[0-9]$/)) {
     const datas = await Post.findOne(
-      { _id: postId },
-      { __v: false, password: false }
+      { where: { postId } }
+      // { __v: false, password: false }
     );
 
     if (datas === null) {
@@ -49,7 +51,7 @@ router.get("/:postId", async (req, res, next) => {
     } else {
       res.json({
         data: {
-          postId: datas._id,
+          postId: datas.postId,
           userId: datas.userId,
           nickname: datas.nickname,
           title: datas.title,
@@ -76,19 +78,19 @@ router.post("/", loginMiddleware, async (req, res) => {
   }
 
   const { title, content } = req.body;
-  const createdAt = new Date();
-  const updatedAt = new Date();
+  // const createdAt = new Date();
+  // const updatedAt = new Date();
   const likes = 0;
-  const likeUsers = [];
+  // const likeUsers = [];
 
   const createPost = await Post.create({
-    userId: user._id,
+    userId: user.userId,
     nickname: user.nickname,
     title,
     content,
-    createdAt,
-    updatedAt,
-    likeUsers,
+    // createdAt,
+    // updatedAt,
+    // likeUsers,
     likes,
   });
   res.json({ message: "게시글을 생성하였습니다." });
@@ -106,19 +108,22 @@ router.put("/:postId", loginMiddleware, async (req, res) => {
 
   const postId = req.params.postId;
   const { title, content } = req.body;
-  const updatedAt = new Date();
+  // const updatedAt = new Date();
 
-  if (postId.match(/^[0-9a-fA-F]{24}$/)) {
-    const thisPost = await Post.findOne({ _id: postId });
+  // object 형식 유효성검사
+  // if (postId.match(/^[0-9a-fA-F]{24}$/)) {
+  if (postId.match(/^[0-9]$/)) {
+    const thisPost = await Post.findOne({ where: { postId } });
 
     if (thisPost === null) {
       res.status(400).json({ message: "해당 게시물을 찾을 수 없습니다." });
       return;
     } else {
-      if (user._id.toString() === thisPost.userId) {
-        await Post.updateOne(
-          { _id: postId },
-          { $set: { title, content, updatedAt } }
+      if (user.userId.toString() === thisPost.userId) {
+        await Post.update(
+          { title, content },
+          { where: { postId } }
+          // { $set: { title, content, updatedAt } }
         );
         res.json({ message: "게시글을 수정하였습니다." });
         return;
@@ -144,15 +149,15 @@ router.delete("/:postId", loginMiddleware, async (req, res) => {
 
   const postId = req.params.postId;
 
-  if (postId.match(/^[0-9a-fA-F]{24}$/)) {
-    const thisPost = await Post.findOne({ _id: postId });
+  if (postId.match(/^[0-9]$/)) {
+    const thisPost = await Post.findOne({ where: { postId } });
 
     if (thisPost === null) {
       res.status(400).json({ message: "해당 게시물을 찾을 수 없습니다." });
       return;
     } else {
-      if (user._id.toString() === thisPost.userId) {
-        await Post.deleteOne({ _id: postId });
+      if (user.userId.toString() === thisPost.userId) {
+        await Post.destroy({ where: { postId } });
         res.json({ message: "게시글을 삭제하였습니다." });
         return;
       } else {

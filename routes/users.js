@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const User = require("../schemas/user");
+// const User = require("../schemas/user");
+const { User } = require("../models");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const loginMiddleware = require("../middleware/login-middleware");
@@ -27,7 +28,7 @@ router.post("/signup", loginMiddleware, async (req, res) => {
     const { nickname, password, confirm } = await signupSchema.validateAsync(
       req.body
     );
-    const likePosts = [];
+    // const likePosts = [];
 
     if (password !== confirm) {
       res.status(400).json({ message: "비밀번호가 일치하지 않습니다." });
@@ -40,13 +41,15 @@ router.post("/signup", loginMiddleware, async (req, res) => {
       return;
     }
 
-    const user = await User.findOne({ nickname });
+    const user = await User.findOne({
+      where: { nickname },
+    });
 
     if (user) {
       res.status(400).json({ message: "중복된 닉네임입니다." });
       return;
     } else {
-      await User.create({ nickname, password, likePosts });
+      await User.create({ nickname, password });
       res.status(201).json({ message: "회원 가입에 성공하였습니다." });
       return;
     }
@@ -69,7 +72,9 @@ router.post("/login", loginMiddleware, async (req, res) => {
     const options = { expiresIn: "1d" };
     const { nickname, password } = await signupSchema.validateAsync(req.body);
 
-    const user = await User.findOne({ nickname, password });
+    const user = await User.findOne({
+      where: { nickname, password },
+    });
 
     if (!user) {
       res.status(400).json({ message: "닉네임 또는 패스워드를 확인해주세요." });
@@ -95,7 +100,7 @@ router.get("/user/me", loginMiddleware, async (req, res) => {
   const { user } = res.locals;
   res.json({
     user: {
-      userId: user._id,
+      userId: user.userId,
       nickname: user.nickname,
     },
   });

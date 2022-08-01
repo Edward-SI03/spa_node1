@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
-const User = require("../schemas/user");
+// const User = require("../schemas/user");
+const { User } = require("../models");
 const secretKey = "sparta";
 
 // 사용자 인증 미들웨어
@@ -17,7 +18,7 @@ module.exports = (req, res, next) => {
 
     try {
       const { userId } = jwt.verify(tokenValue, secretKey);
-      User.findOne({ _id: userId }).then((user) => {
+      User.findByPk(userId).then((user) => {
         res.locals.user = user;
         next();
       });
