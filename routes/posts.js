@@ -8,50 +8,48 @@ const loginMiddleware = require("../middleware/login-middleware");
 router.get("/", async (req, res) => {
   let datas = await Post.findAll(
     { order: [["createdAt", "DESC"]] }
-    // { __v: false, password: false, content: false }
   );
-  // .sort({
-  //   createdAt: "desc",
+
+  // 좋아요 누를때 likes의 카운트를 +-1 안해도, 
+  // Like테이블에서 좋아요 게시물을 배열로 만들어 요소의 갯수만큼 likes를 표시
+  // const likeCount = datas.map((e) => {
+  //   return Like.findAll({ where: { postId: e.postId } });
+  // });
+  // // console.log(likeCount);
+
+  // Promise.all(likeCount).then((value) => {
+  //   // console.log(value);
+
+  //   res.json({
+  //     data: datas.map((e, i) => {
+  //       return {
+  //         postId: e.postId,
+  //         userId: e.userId,
+  //         nickname: e.nickname,
+  //         title: e.title,
+  //         createdAt: e.createdAt,
+  //         updatedAt: e.updatedAt,
+  //         likes: value[i].length,
+  //       };
+  //     }),
+  //   });
   // });
 
-  const likeCount = datas.map((e) => {
-    return Like.findAll({ where: { postId: e.postId } });
+  // 좋아요 누를때 likes의 카운트를 +-1 씩 해서 맞춤
+  // 내가 좋아요 누른 게시물 보여줄때 또 배열돌려서 좋아요 갯수 보여주기 힘들어서 이 방법 선택함
+  res.json({
+    data: datas.map((e) => {
+      return {
+        postId: e.postId,
+        userId: e.userId,
+        nickname: e.nickname,
+        title: e.title,
+        createdAt: e.createdAt,
+        updatedAt: e.updatedAt,
+        likes: e.likes,
+      };
+    }),
   });
-  // console.log(likeCount);
-
-  Promise.all(likeCount).then((value) => {
-    // console.log(value);
-
-    res.json({
-      data: datas.map((e, i) => {
-        return {
-          postId: e.postId,
-          userId: e.userId,
-          nickname: e.nickname,
-          title: e.title,
-          createdAt: e.createdAt,
-          updatedAt: e.updatedAt,
-          likes: value[i].length,
-        };
-      }),
-    });
-  });
-
-  // console.log("이게 먼저됨?");
-
-  // res.json({
-  //   data: datas.map((e) => {
-  //     return {
-  //       postId: e.postId,
-  //       userId: e.userId,
-  //       nickname: e.nickname,
-  //       title: e.title,
-  //       createdAt: e.createdAt,
-  //       updatedAt: e.updatedAt,
-  //       likes: e.likes,
-  //     };
-  //   }),
-  // });
 });
 
 // 게시물 상세 조회
@@ -73,7 +71,7 @@ router.get("/:postId", async (req, res, next) => {
       res.status(400).json({ message: "해당 게시물을 찾을 수 없습니다." });
       return;
     } else {
-      const likeCount = await Like.findAll({ where: { postId } });
+      // const likeCount = await Like.findAll({ where: { postId } });
       res.json({
         data: {
           postId: datas.postId,
@@ -83,7 +81,7 @@ router.get("/:postId", async (req, res, next) => {
           content: datas.content,
           createdAt: datas.createdAt,
           updatedAt: datas.updatedAt,
-          likes: likeCount.length,
+          likes: datas.likes,
         },
       });
       return;

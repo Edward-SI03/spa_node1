@@ -27,9 +27,15 @@ router.put("/posts/:postId/like", loginMiddleware, async (req, res) => {
       const thisLike = await Like.findOne({ where: { postId, userId } });
 
       if (thisLike === null) {
+        const count = thisPost.likes + 1;
+        console.log(count)
+        await Post.update({ likes: count }, { where: { postId } });
         await Like.create({ postId, userId });
+        
         res.json({ message: "게시글의 좋아요를 등록하였습니다." });
       } else {
+        const count = thisPost.likes - 1;
+        await Post.update({ likes: count }, { where: { postId } });
         await Like.destroy({ where: { postId, userId } });
         res.json({ message: "게시글의 좋아요를 취소하였습니다." });
       }
@@ -53,7 +59,6 @@ router.get("/posts/like", loginMiddleware, async (req, res) => {
     where: { userId },
     order: [["createdAt", "DESC"]],
   });
-
   // console.log(datas);
 
   const likePosts = datas.map((e) => {
@@ -65,9 +70,16 @@ router.get("/posts/like", loginMiddleware, async (req, res) => {
 
     res.json({
       data: value.map((e) => {
-        console.log(e);
-
-        return e[0]
+        // console.log(e);
+        return {
+          postId: e[0].postId,
+          userId: e[0].userId,
+          nickname: e[0].nickname,
+          title: e[0].title,
+          createdAt: e[0].createdAt,
+          updatedAt: e[0].updatedAt,
+          likes: e[0].likes,
+        };
       }),
     });
   });
