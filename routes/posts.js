@@ -1,33 +1,57 @@
 const express = require("express");
 const router = express.Router();
 // const Post = require("../schemas/post");
-const { Post } = require("../models");
+const { Post, Like } = require("../models");
 const loginMiddleware = require("../middleware/login-middleware");
 
 // 게시물 조회
 router.get("/", async (req, res) => {
-  const datas = await Post.findAll(
+  let datas = await Post.findAll(
     { order: [["createdAt", "DESC"]] }
     // { __v: false, password: false, content: false }
   );
   // .sort({
   //   createdAt: "desc",
   // });
-  console.log(datas);
 
-  res.json({
-    data: datas.map((e) => {
-      return {
-        postId: e.postId,
-        userId: e.userId,
-        nickname: e.nickname,
-        title: e.title,
-        createdAt: e.createdAt,
-        updatedAt: e.updatedAt,
-        likes: e.likes,
-      };
-    }),
+  const likeCount = datas.map((e) => {
+    return Like.findAll({ where: { postId: e.postId } });
   });
+  // console.log(likeCount);
+
+  Promise.all(likeCount).then((value) => {
+    // console.log(value);
+
+    res.json({
+      data: datas.map((e, i) => {
+        return {
+          postId: e.postId,
+          userId: e.userId,
+          nickname: e.nickname,
+          title: e.title,
+          createdAt: e.createdAt,
+          updatedAt: e.updatedAt,
+          likes: value[i].length,
+        };
+      }),
+    });
+  });
+
+  // console.log("이게 먼저됨?");
+
+  // res.json({
+  //   data: datas.map((e) => {
+  //     return {
+  //       postId: e.postId,
+  //       userId: e.userId,
+  //       nickname: e.nickname,
+  //       title: e.title,
+  //       createdAt: e.createdAt,
+  //       updatedAt: e.updatedAt,
+  //       likes: e.likes,
+  //     };
+  //   }),
+  // });
 });
 
 // 게시물 상세 조회
@@ -49,6 +73,7 @@ router.get("/:postId", async (req, res, next) => {
       res.status(400).json({ message: "해당 게시물을 찾을 수 없습니다." });
       return;
     } else {
+      const likeCount = await Like.findAll({ where: { postId } });
       res.json({
         data: {
           postId: datas.postId,
@@ -58,7 +83,7 @@ router.get("/:postId", async (req, res, next) => {
           content: datas.content,
           createdAt: datas.createdAt,
           updatedAt: datas.updatedAt,
-          likes: datas.likes,
+          likes: likeCount.length,
         },
       });
       return;

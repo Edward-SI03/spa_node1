@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
   class Post extends Model {
     static associate(models) {
       // define association here
-      this.belongsTo(models.User);
+      // this.belongsTo(models.User);
     }
   }
   Post.init(
@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
-      // userId: DataTypes.STRING,
+      userId: DataTypes.STRING,
       nickname: DataTypes.STRING,
       title: DataTypes.STRING,
       content: DataTypes.STRING,
