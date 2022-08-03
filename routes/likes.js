@@ -27,10 +27,10 @@ router.put("/posts/:postId/like", loginMiddleware, async (req, res) => {
 
       if (thisLike === null) {
         const count = thisPost.likes + 1;
-        console.log(count)
+        console.log(count);
         await Post.update({ likes: count }, { where: { postId } });
         await Like.create({ postId, userId });
-        
+
         res.json({ message: "게시글의 좋아요를 등록하였습니다." });
       } else {
         const count = thisPost.likes - 1;
@@ -60,28 +60,48 @@ router.get("/posts/like", loginMiddleware, async (req, res) => {
   });
   // console.log(datas);
 
-  const likePosts = datas.map((e) => {
-    return Post.findAll({ where: { postId: e.postId } });
+  const likePost = datas.map((e) => e.postId);
+  const likePosts = await Post.findAll({
+    where: { postId: likePost },
   });
-  // console.log(likePosts)
-  Promise.all(likePosts).then((value) => {
-    // console.log(value);
 
-    res.json({
-      data: value.map((e) => {
-        // console.log(e);
-        return {
-          postId: e[0].postId,
-          userId: e[0].userId,
-          nickname: e[0].nickname,
-          title: e[0].title,
-          createdAt: e[0].createdAt,
-          updatedAt: e[0].updatedAt,
-          likes: e[0].likes,
-        };
-      }),
-    });
+  res.json({
+    data: likePosts.map((e) => {
+      return {
+        postId: e.postId,
+        userId: e.userId,
+        nickname: e.nickname,
+        title: e.title,
+        createdAt: e.createdAt,
+        updatedAt: e.updatedAt,
+        likes: e.likes,
+      };
+    }),
   });
+
+  // 아 map에서 {}했으면 return만 했으면 해결되는건데 promise.all 까지 가버렸네..
+  // const likePosts = datas.map((e) => {
+  //   return Post.findAll({ where: { postId: e.postId } });
+  // });
+  // // console.log(likePosts)
+  // Promise.all(likePosts).then((value) => {
+  //   // console.log(value);
+
+  //   res.json({
+  //     data: value.map((e) => {
+  //       // console.log(e);
+  //       return {
+  //         postId: e[0].postId,
+  //         userId: e[0].userId,
+  //         nickname: e[0].nickname,
+  //         title: e[0].title,
+  //         createdAt: e[0].createdAt,
+  //         updatedAt: e[0].updatedAt,
+  //         likes: e[0].likes,
+  //       };
+  //     }),
+  //   });
+  // });
 });
 
 module.exports = router;
