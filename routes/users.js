@@ -19,16 +19,15 @@ const signupSchema = Joi.object({
 });
 router.post("/signup", loginMiddleware, async (req, res) => {
   const { user } = res.locals;
-
   if (user) {
     res.status(400).json({ message: "이미 로그인이 되어있습니다." });
     return;
   }
+
   try {
     const { nickname, password, confirm } = await signupSchema.validateAsync(
       req.body
     );
-    // const likePosts = [];
 
     if (password !== confirm) {
       res.status(400).json({ message: "비밀번호가 일치하지 않습니다." });
@@ -63,16 +62,17 @@ router.post("/signup", loginMiddleware, async (req, res) => {
 // 로그인
 const loginSchema = Joi.object({
   nickname: Joi.string().required().min(3).alphanum(),
-  password: Joi.string().required().min(4).alphanum()
-})
+  password: Joi.string().required().min(4).alphanum(),
+});
 router.post("/login", loginMiddleware, async (req, res) => {
   const { user } = res.locals;
-
   if (user) {
     res.status(400).json({ message: "이미 로그인이 되어있습니다." });
     return;
   }
+
   try {
+    // 토큰 유효기간 1day 설정
     const options = { expiresIn: "1d" };
     const { nickname, password } = await loginSchema.validateAsync(req.body);
 
@@ -99,7 +99,7 @@ router.post("/login", loginMiddleware, async (req, res) => {
   }
 });
 
-// 정보조회
+// 정보조회 test
 router.get("/user/me", loginMiddleware, async (req, res) => {
   const { user } = res.locals;
   res.json({

@@ -2,8 +2,8 @@ const express = require("express");
 const app = express();
 const port = 3000;
 
-const connect = require("./schemas/index");
-connect();
+// const connect = require("./schemas/index");
+// connect();
 
 // 리퀘스트 경로를 남기는 미들웨어
 app.use((req, res, next) => {

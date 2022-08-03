@@ -6,12 +6,26 @@ const loginMiddleware = require("../middleware/login-middleware");
 
 // 게시물 조회
 router.get("/", async (req, res) => {
-  let datas = await Post.findAll(
-    { order: [["createdAt", "DESC"]] }
-  );
-  console.log(datas)
+  let datas = await Post.findAll({ order: [["createdAt", "DESC"]] });
+  // console.log(datas)
 
-  // 좋아요 누를때 likes의 카운트를 +-1 안해도, 
+  // 좋아요 누를때 likes의 카운트를 +-1 씩 해서 맞춤
+  // 내가 좋아요 누른 게시물 보여줄때 또 배열돌려서 좋아요 갯수 보여주기 힘들어서 이 방법 선택함
+  res.json({
+    data: datas.map((e) => {
+      return {
+        postId: e.postId,
+        userId: e.userId,
+        nickname: e.nickname,
+        title: e.title,
+        createdAt: e.createdAt,
+        updatedAt: e.updatedAt,
+        likes: e.likes,
+      };
+    }),
+  });
+
+  // 좋아요 누를때 likes의 카운트를 +-1 안해도,
   // Like테이블에서 좋아요 게시물을 배열로 만들어 요소의 갯수만큼 likes를 표시
   // const likeCount = datas.map((e) => {
   //   return Like.findAll({ where: { postId: e.postId } });
@@ -35,22 +49,6 @@ router.get("/", async (req, res) => {
   //     }),
   //   });
   // });
-
-  // 좋아요 누를때 likes의 카운트를 +-1 씩 해서 맞춤
-  // 내가 좋아요 누른 게시물 보여줄때 또 배열돌려서 좋아요 갯수 보여주기 힘들어서 이 방법 선택함
-  res.json({
-    data: datas.map((e) => {
-      return {
-        postId: e.postId,
-        userId: e.userId,
-        nickname: e.nickname,
-        title: e.title,
-        createdAt: e.createdAt,
-        updatedAt: e.updatedAt,
-        likes: e.likes,
-      };
-    }),
-  });
 });
 
 // 게시물 상세 조회
@@ -105,7 +103,6 @@ router.post("/", loginMiddleware, async (req, res) => {
   // const createdAt = new Date();
   // const updatedAt = new Date();
   const likes = 0;
-  // const likeUsers = [];
 
   const createPost = await Post.create({
     userId: user.userId,
@@ -114,7 +111,6 @@ router.post("/", loginMiddleware, async (req, res) => {
     content,
     // createdAt,
     // updatedAt,
-    // likeUsers,
     likes,
   });
   res.json({ message: "게시글을 생성하였습니다." });
@@ -124,7 +120,6 @@ router.post("/", loginMiddleware, async (req, res) => {
 // 게시물 수정
 router.put("/:postId", loginMiddleware, async (req, res) => {
   const { user } = res.locals;
-
   if (!user) {
     res.status(400).json({ message: "로그인이 필요합니다." });
     return;
@@ -165,7 +160,6 @@ router.put("/:postId", loginMiddleware, async (req, res) => {
 // 게시물 삭제
 router.delete("/:postId", loginMiddleware, async (req, res) => {
   const { user } = res.locals;
-
   if (!user) {
     res.status(400).json({ message: "로그인이 필요합니다." });
     return;

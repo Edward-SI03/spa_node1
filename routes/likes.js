@@ -17,7 +17,6 @@ router.put("/posts/:postId/like", loginMiddleware, async (req, res) => {
 
   if (postId.match(/^[0-9]$/)) {
     const thisPost = await Post.findOne({ where: { postId } });
-    // console.log(thisPost);
 
     if (thisPost === null) {
       res.status(400).json({ message: "해당 게시물을 찾을 수 없습니다." });
