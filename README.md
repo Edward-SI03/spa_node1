@@ -5,13 +5,13 @@
 
 ## 1.  과제 목표
 
- - 서비스 완성
- - Directory Structure
- - AWS 배포
+ - ~~서비스 완성
+ - ~~Directory Structure
+ - ~~AWS 배포
  
- - 회원가입, 로그인 기능 구현
- - 좋아요 / 좋아요 게시물 보기 기능 구현
- - 데이터베이스 전환(mongose -> sequelize)
+ - ~~회원가입, 로그인 기능 구현
+ - ~~좋아요 / 좋아요 게시물 보기 기능 구현
+ - 데이터베이스 전환(mongose -> sequelize)(전환은 성공 but, 관계 설정 구현중)
 
 
 ## 2. ERD
