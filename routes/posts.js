@@ -9,6 +9,7 @@ router.get("/", async (req, res) => {
   let datas = await Post.findAll(
     { order: [["createdAt", "DESC"]] }
   );
+  console.log(datas)
 
   // 좋아요 누를때 likes의 카운트를 +-1 안해도, 
   // Like테이블에서 좋아요 게시물을 배열로 만들어 요소의 갯수만큼 likes를 표시

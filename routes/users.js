@@ -61,6 +61,10 @@ router.post("/signup", loginMiddleware, async (req, res) => {
 });
 
 // 로그인
+const loginSchema = Joi.object({
+  nickname: Joi.string().required().min(3).alphanum(),
+  password: Joi.string().required().min(4).alphanum()
+})
 router.post("/login", loginMiddleware, async (req, res) => {
   const { user } = res.locals;
 
@@ -70,7 +74,7 @@ router.post("/login", loginMiddleware, async (req, res) => {
   }
   try {
     const options = { expiresIn: "1d" };
-    const { nickname, password } = await signupSchema.validateAsync(req.body);
+    const { nickname, password } = await loginSchema.validateAsync(req.body);
 
     const user = await User.findOne({
       where: { nickname, password },
