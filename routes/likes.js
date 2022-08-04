@@ -17,52 +17,26 @@ router.put("/posts/:postId/like", loginMiddleware, async (req, res) => {
 
   if (postId.match(/^[0-9]$/)) {
     const thisPost = await Post.findOne({ where: { postId } });
-    
 
     if (thisPost === null) {
       res.status(400).json({ message: "해당 게시물을 찾을 수 없습니다." });
       return;
     } else {
       const userId = user.userId;
-      console.log(userId)
       const thisLike = await Like.findOne({ where: { postId, userId } });
-      console.log(thisLike)
 
       if (thisLike === null) {
         const count = thisPost.likes + 1;
-        console.log(count);
         await Post.update({ likes: count }, { where: { postId } });
-        // const likeUserId = await User.findOne({userId})
-        // const likePostId = await likeUserId.
-        // await Like.create({ postId, userId });
+        await Like.create({ postId, userId });
 
         res.json({ message: "게시글의 좋아요를 등록하였습니다." });
       } else {
         const count = thisPost.likes - 1;
-        // await Post.update({ likes: count }, { where: { postId } });
-        // await Like.destroy({ where: { postId, userId } });
+        await Post.update({ likes: count }, { where: { postId } });
+        await Like.destroy({ where: { postId, userId } });
         res.json({ message: "게시글의 좋아요를 취소하였습니다." });
       }
-
-
-      // const userId = user.userId;
-      // const thisLike = await Like.findOne({ where: { postId, userId } });
-
-      // if (thisLike === null) {
-      //   const count = thisPost.likes + 1;
-      //   console.log(count);
-      //   await Post.update({ likes: count }, { where: { postId } });
-      //   // const likeUserId = await User.findOne({userId})
-      //   // const likePostId = await likeUserId.
-      //   // await Like.create({ postId, userId });
-
-      //   res.json({ message: "게시글의 좋아요를 등록하였습니다." });
-      // } else {
-      //   const count = thisPost.likes - 1;
-      //   // await Post.update({ likes: count }, { where: { postId } });
-      //   // await Like.destroy({ where: { postId, userId } });
-      //   res.json({ message: "게시글의 좋아요를 취소하였습니다." });
-      // }
     }
   } else {
     res.status(400).json({ message: "postId 형식이 맞지 않습니다." });
@@ -83,11 +57,16 @@ router.get("/posts/like", loginMiddleware, async (req, res) => {
     where: { userId },
     order: [["createdAt", "DESC"]],
   });
-  // console.log(datas);
+  console.log(datas);
 
   const likePost = datas.map((e) => e.postId);
   const likePosts = await Post.findAll({
     where: { postId: likePost },
+    include: {
+      model: User,
+      attributes: ["nickname"],
+    },
+    order: [["createdAt", "DESC"]],
   });
 
   res.json({
@@ -95,7 +74,7 @@ router.get("/posts/like", loginMiddleware, async (req, res) => {
       return {
         postId: e.postId,
         userId: e.userId,
-        nickname: e.nickname,
+        nickname: e.user.nickname,
         title: e.title,
         createdAt: e.createdAt,
         updatedAt: e.updatedAt,

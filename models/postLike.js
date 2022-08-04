@@ -1,17 +1,13 @@
 module.exports = (sequelize, DataTypes) => {
   return sequelize.define(
-    "comment",
+    "postLike",
     {
-      commentId: {
+      Id: {
         type: DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
         unique: true,
         primaryKey: true,
         autoIncrement: true,
-      },
-      comment: {
-        type: DataTypes.TEXT,
-        allowNull: false,
       },
     },
     {
