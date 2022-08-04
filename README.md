@@ -16,7 +16,8 @@
 
 ## 2. ERD
 
-![image](https://user-images.githubusercontent.com/102647711/182505132-32cb9fb8-c07e-4bd8-8a68-4bbf8c35921e.png)
+![image](https://user-images.githubusercontent.com/102647711/182803128-a8f5d2be-622c-4202-aa40-e8251782b40d.png)
+
 
 
  ## 3.  AWS 배포
