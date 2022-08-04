@@ -16,7 +16,10 @@
 
 ## 2. ERD
 
-![image](https://user-images.githubusercontent.com/102647711/182803128-a8f5d2be-622c-4202-aa40-e8251782b40d.png)
+https://drawsql.app/sparta-7/diagrams/node1#
+
+![image](https://user-images.githubusercontent.com/102647711/182803765-9cc43c22-7290-4e19-9057-359abf7cc205.png)
+
 
 
 
