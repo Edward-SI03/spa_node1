@@ -1,30 +1,60 @@
-"use strict";
-const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  class User extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
-    static associate(models) {
-      // define association here
-    }
-  }
-  User.init(
+  return sequelize.define(
+    "user",
     {
       userId: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        allowNull: false,
+        unique: true,
         primaryKey: true,
-        type: DataTypes.INTEGER,
+        autoIncrement: true,
       },
-      nickname: DataTypes.STRING,
-      password: DataTypes.STRING,
-      // likePosts: DataTypes.STRING,
+      nickname: {
+        type: DataTypes.STRING(20),
+        allowNull: false,
+        unique: true,
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
     },
     {
-      sequelize,
-      modelName: "User",
+      timestamps: true,
     }
   );
-  return User;
 };
+
+// const Sequelize = require("sequelize");
+
+// module.exports = class User extends Sequelize.Model {
+//   static init(sequelize) {
+//     return super.init(
+//       {
+//         userId: {
+//           type: Sequelize.INTEGER.UNSIGNED,
+//           allowNull: false,
+//           unique: true,
+//           primaryKey: true,
+//           autoIncrement: true,
+//         },
+//         nickname: {
+//           type: Sequelize.STRING(20),
+//           allowNull: false,
+//           unique: true,
+//         },
+//         password: {
+//           type: Sequelize.STRING,
+//           allowNull: false,
+//         },
+//       },
+//       {
+//         sequelize,
+//         timestamps: true,
+//       }
+//     );
+//   }
+//   static associate(db) {
+//     db.User.hasMany(db.Post, { foreignKey: "userId", sourceKey: "userId" });
+//   }
+// };

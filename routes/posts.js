@@ -1,13 +1,19 @@
 const express = require("express");
 const router = express.Router();
 // const Post = require("../schemas/post");
-const { Post, Like } = require("../models");
+const { Post, User } = require("../models");
 const loginMiddleware = require("../middleware/login-middleware");
 
 // 게시물 조회
 router.get("/", async (req, res) => {
-  let datas = await Post.findAll({ order: [["createdAt", "DESC"]] });
-  // console.log(datas)
+  let datas = await Post.findAll({
+    include: {
+      model: User,
+      attributes: ["nickname"],
+    },
+    order: [["createdAt", "DESC"]],
+  });
+  // console.log(datas[0].user);
 
   // 좋아요 누를때 likes의 카운트를 +-1 씩 해서 맞춤
   // 내가 좋아요 누른 게시물 보여줄때 또 배열돌려서 좋아요 갯수 보여주기 힘들어서 이 방법 선택함
@@ -15,8 +21,8 @@ router.get("/", async (req, res) => {
     data: datas.map((e) => {
       return {
         postId: e.postId,
-        userId: e.userId,
-        nickname: e.nickname,
+        // userId: e.userId,
+        nickname: e.user.nickname,
         title: e.title,
         createdAt: e.createdAt,
         updatedAt: e.updatedAt,
@@ -62,7 +68,13 @@ router.get("/:postId", async (req, res, next) => {
 
   if (postId.match(/^[0-9]$/)) {
     const datas = await Post.findOne(
-      { where: { postId } }
+      {
+        where: { postId },
+        include: {
+          model: User,
+          attributes: ["nickname"],
+        },
+      }
       // { __v: false, password: false }
     );
 
@@ -75,7 +87,7 @@ router.get("/:postId", async (req, res, next) => {
         data: {
           postId: datas.postId,
           userId: datas.userId,
-          nickname: datas.nickname,
+          nickname: datas.user.nickname,
           title: datas.title,
           content: datas.content,
           createdAt: datas.createdAt,
@@ -106,7 +118,7 @@ router.post("/", loginMiddleware, async (req, res) => {
 
   const createPost = await Post.create({
     userId: user.userId,
-    nickname: user.nickname,
+    // nickname: user.nickname,
     title,
     content,
     // createdAt,
@@ -138,7 +150,7 @@ router.put("/:postId", loginMiddleware, async (req, res) => {
       res.status(400).json({ message: "해당 게시물을 찾을 수 없습니다." });
       return;
     } else {
-      if (user.userId.toString() === thisPost.userId) {
+      if (user.userId === thisPost.userId) {
         await Post.update(
           { title, content },
           { where: { postId } }
@@ -174,7 +186,7 @@ router.delete("/:postId", loginMiddleware, async (req, res) => {
       res.status(400).json({ message: "해당 게시물을 찾을 수 없습니다." });
       return;
     } else {
-      if (user.userId.toString() === thisPost.userId) {
+      if (user.userId === thisPost.userId) {
         await Post.destroy({ where: { postId } });
         res.json({ message: "게시글을 삭제하였습니다." });
         return;

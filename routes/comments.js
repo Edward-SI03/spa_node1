@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 // const Comment = require("../schemas/comment");
 // const Post = require("../schemas/post");
-const { Post, Comment } = require("../models");
+const { Post, Comment, User } = require("../models");
 const loginMiddleware = require("../middleware/login-middleware");
 
 // 해당 게시글의 댓글 목록보기
@@ -16,19 +16,27 @@ router.get("/:postId", async (req, res) => {
       return;
     } else {
       const datas = await Comment.findAll(
-        { where: { postId }, order: [["createdAt", "DESC"]] }
+        {
+          where: { postId },
+          include: {
+            model: User,
+            attributes: ["nickname"],
+          },
+          order: [["createdAt", "DESC"]],
+        }
         // { __v: false, password: false, postId: false }
       );
       // .sort({
       //   createdAt: "desc",
       // });
+      console.log(datas);
 
       res.json({
         data: datas.map((e) => {
           return {
             commentId: e.commentId,
             userId: e.userId,
-            nickname: e.nickname,
+            nickname: e.user.nickname,
             comment: e.comment,
             createdAt: e.createdAt,
             updatedAt: e.updatedAt,
@@ -69,7 +77,7 @@ router.post("/:postId", loginMiddleware, async (req, res) => {
         const createComment = await Comment.create({
           postId,
           userId: user.userId,
-          nickname: user.nickname,
+          // nickname: user.nickname,
           comment,
           // createdAt,
           // updatedAt,
@@ -107,7 +115,7 @@ router.put("/:commentId", loginMiddleware, async (req, res) => {
         res.status(400).json({ message: "댓글 내용을 입력해주세요." });
         return;
       } else {
-        if (user.userId.toString() === thisComment.userId) {
+        if (user.userId === thisComment.userId) {
           await Comment.update({ comment }, { where: { commentId } });
           res.json({ message: "댓글을 수정하였습니다." });
           return;
@@ -134,13 +142,13 @@ router.delete("/:commentId", loginMiddleware, async (req, res) => {
   const { commentId } = req.params;
 
   if (commentId.match(/^[0-9]$/)) {
-    const thisComment = await Comment.findOne({ where:{commentId} });
+    const thisComment = await Comment.findOne({ where: { commentId } });
 
     if (thisComment === null) {
       res.status(400).json({ message: "해당 댓글을 찾을 수 없습니다." });
     } else {
-      if (user.userId.toString() === thisComment.userId) {
-        await Comment.destroy({ where:{commentId} });
+      if (user.userId === thisComment.userId) {
+        await Comment.destroy({ where: { commentId } });
         res.json({ message: "댓글을 삭제하였습니다." });
       } else {
         res.status(400).json({ message: "작성자가 다릅니다." });

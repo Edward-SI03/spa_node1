@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 // const Post = require("../schemas/post");
 // const User = require("../schemas/user");
-const { Like, Post } = require("../models");
+const { Like, Post, User } = require("../models");
 const loginMiddleware = require("../middleware/login-middleware");
 
 // 게시글 좋아요
@@ -17,27 +17,52 @@ router.put("/posts/:postId/like", loginMiddleware, async (req, res) => {
 
   if (postId.match(/^[0-9]$/)) {
     const thisPost = await Post.findOne({ where: { postId } });
+    
 
     if (thisPost === null) {
       res.status(400).json({ message: "해당 게시물을 찾을 수 없습니다." });
       return;
     } else {
-      const userId = user.userId.toString();
+      const userId = user.userId;
+      console.log(userId)
       const thisLike = await Like.findOne({ where: { postId, userId } });
+      console.log(thisLike)
 
       if (thisLike === null) {
         const count = thisPost.likes + 1;
         console.log(count);
         await Post.update({ likes: count }, { where: { postId } });
-        await Like.create({ postId, userId });
+        // const likeUserId = await User.findOne({userId})
+        // const likePostId = await likeUserId.
+        // await Like.create({ postId, userId });
 
         res.json({ message: "게시글의 좋아요를 등록하였습니다." });
       } else {
         const count = thisPost.likes - 1;
-        await Post.update({ likes: count }, { where: { postId } });
-        await Like.destroy({ where: { postId, userId } });
+        // await Post.update({ likes: count }, { where: { postId } });
+        // await Like.destroy({ where: { postId, userId } });
         res.json({ message: "게시글의 좋아요를 취소하였습니다." });
       }
+
+
+      // const userId = user.userId;
+      // const thisLike = await Like.findOne({ where: { postId, userId } });
+
+      // if (thisLike === null) {
+      //   const count = thisPost.likes + 1;
+      //   console.log(count);
+      //   await Post.update({ likes: count }, { where: { postId } });
+      //   // const likeUserId = await User.findOne({userId})
+      //   // const likePostId = await likeUserId.
+      //   // await Like.create({ postId, userId });
+
+      //   res.json({ message: "게시글의 좋아요를 등록하였습니다." });
+      // } else {
+      //   const count = thisPost.likes - 1;
+      //   // await Post.update({ likes: count }, { where: { postId } });
+      //   // await Like.destroy({ where: { postId, userId } });
+      //   res.json({ message: "게시글의 좋아요를 취소하였습니다." });
+      // }
     }
   } else {
     res.status(400).json({ message: "postId 형식이 맞지 않습니다." });

@@ -2,9 +2,11 @@
   "development": {
     "username": "root",
     "password": "wlsduq12",
-    "database": "database_development",
+    "database": "express_db",
     "host": "express-database.cza38indgtyr.ap-northeast-2.rds.amazonaws.com",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "operatorsAliases": false,
+    "logging": false
   },
   "test": {
     "username": "root",
