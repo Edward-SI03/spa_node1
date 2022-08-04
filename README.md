@@ -16,7 +16,11 @@
 
 ## 2. ERD
 
-![image](https://user-images.githubusercontent.com/102647711/182505132-32cb9fb8-c07e-4bd8-8a68-4bbf8c35921e.png)
+https://drawsql.app/sparta-7/diagrams/node1#
+
+![image](https://user-images.githubusercontent.com/102647711/182803765-9cc43c22-7290-4e19-9057-359abf7cc205.png)
+
+
 
 
  ## 3.  AWS 배포
