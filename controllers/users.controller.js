@@ -19,7 +19,7 @@ class UsersController {
         req.body
       );
 
-      const signup = this.usersservice.signup(
+      const signup = await this.usersservice.signup(
         userLogin,
         nickname,
         password,
@@ -34,7 +34,7 @@ class UsersController {
       res.status(200).json({ data: signup });
     } catch (err) {
       console.log(err);
-      res.status(400).json({ message: "입력 형식이 맞지 않습니다." });
+      res.status(400).json({ errMessage: "입력 형식이 맞지 않습니다." });
       return;
     }
   };
@@ -50,17 +50,22 @@ class UsersController {
 
       const { nickname, password } = await loginSchema.validateAsync(req.body);
 
-      const login = this.usersservice.login(userLogin, nickname, password);
+      const login = await this.usersservice.login(
+        userLogin,
+        nickname,
+        password
+      );
 
       if (login.errMessage) {
         res.status(400).json({ err: login });
         return;
       }
 
-      res.status(200).json({ data: login });
+      res.cookie("token", login.token);
+      res.status(200).json({ token: login.token });
     } catch (err) {
       console.log(err);
-      res.status(400).json({ message: "입력 형식이 맞지 않습니다." });
+      res.status(400).json({ errMessage: "입력 형식이 맞지 않습니다." });
       return;
     }
   };
