@@ -8,6 +8,16 @@ const port = process.env.Port;
 
 const sequelize = require("./models").sequelize;
 
+const fs = require("fs");
+const http = require("http");
+const https = require("https");
+
+const options = {
+  ca: fs.readFileSync("/etc/letsencrypt/live/내 도메인 네임/fullchain.pem"),
+  key: fs.readFileSync("/etc/letsencrypt/live/내 도메인 네임/privkey.pem"),
+  cert: fs.readFileSync("/etc/letsencrypt/live/내 도메인 네임/cert.pem"),
+};
+
 // 리퀘스트 경로를 남기는 미들웨어
 app.use((req, res, next) => {
   console.log("req : ", req.originalUrl, " - ", new Date());
@@ -31,6 +41,9 @@ app.get("/", (req, res) => {
   });
 });
 
-app.listen(port, () => {
-  console.log(port, "포트로 서버가 열렸습니다.");
-});
+// app.listen(port, () => {
+//   console.log(port, "포트로 서버가 열렸습니다.");
+// });
+
+http.createServer(app).listen(3000);
+https.createServer(options, app).listen(443);
