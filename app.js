@@ -7,16 +7,26 @@ const port = process.env.Port;
 // connect();
 
 const sequelize = require("./models").sequelize;
+const cors = require("cors");
 
 const fs = require("fs");
 const http = require("http");
 const https = require("https");
 
 const options = {
-  ca: fs.readFileSync("/etc/letsencrypt/live/내 도메인 네임/fullchain.pem"),
-  key: fs.readFileSync("/etc/letsencrypt/live/내 도메인 네임/privkey.pem"),
-  cert: fs.readFileSync("/etc/letsencrypt/live/내 도메인 네임/cert.pem"),
+  ca: fs.readFileSync("/etc/letsencrypt/live/jinyeop.shop/fullchain.pem"),
+  key: fs.readFileSync("/etc/letsencrypt/live/jinyeop.shop/privkey.pem"),
+  cert: fs.readFileSync("/etc/letsencrypt/live/jinyeop.shop/cert.pem"),
 };
+
+app.use(
+  cors({
+    origin: true, // 출처 허용 옵션
+    withCredentials: true, // 사용자 인증이 필요한 리소스(쿠키 ..등) 접근
+  })
+);
+
+app.use(express.static("public"));
 
 // 리퀘스트 경로를 남기는 미들웨어
 app.use((req, res, next) => {
@@ -24,7 +34,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.static("public"));
 app.use(express.json());
 // app.use(express.urlencoded({ extended: false }));
 sequelize
