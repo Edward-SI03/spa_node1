@@ -10,9 +10,9 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build:
+  deploy:
     name: CD Pipeline
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
 
     strategy:
       matrix:
@@ -20,10 +20,17 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
+      - name: Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_IP }}
+          username: ${{ secrets.EC2_NAME }}
+          key: ${{ secrets.EC2_KEY }}
+          port: ${{ secrets.EC2_PORT }}
+          script: |
+            cd /home/ubuntu/spa_node/spa_node1
+            git pull origin master
+            npm ci
+            sudo pm2 stop 0
+            sudo pm2 kill
+            sudo pm2 start app.js
