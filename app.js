@@ -46,7 +46,7 @@ app.use(Router);
 
 app.get("/", (req, res) => {
   res.json({
-    "항해 8기 E반": "시진엽2",
+    "항해 8기 E반": "시진엽3",
   });
 });
 
