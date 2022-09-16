@@ -13,11 +13,11 @@ const fs = require("fs");
 const http = require("http");
 const https = require("https");
 
-const options = {
-  ca: fs.readFileSync("/etc/letsencrypt/live/jinyeop.shop/fullchain.pem"),
-  key: fs.readFileSync("/etc/letsencrypt/live/jinyeop.shop/privkey.pem"),
-  cert: fs.readFileSync("/etc/letsencrypt/live/jinyeop.shop/cert.pem"),
-};
+// const options = {
+//   ca: fs.readFileSync("/etc/letsencrypt/live/jinyeop.shop/fullchain.pem"),
+//   key: fs.readFileSync("/etc/letsencrypt/live/jinyeop.shop/privkey.pem"),
+//   cert: fs.readFileSync("/etc/letsencrypt/live/jinyeop.shop/cert.pem"),
+// };
 
 app.use(
   cors({
@@ -29,10 +29,10 @@ app.use(
 app.use(express.static("public"));
 
 // 리퀘스트 경로를 남기는 미들웨어
-app.use((req, res, next) => {
-  console.log("req : ", req.originalUrl, " - ", new Date());
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log("req : ", req.originalUrl, " - ", new Date());
+//   next();
+// });
 
 app.use(express.json());
 // app.use(express.urlencoded({ extended: false }));
@@ -50,9 +50,9 @@ app.get("/", (req, res) => {
   });
 });
 
-// app.listen(port, () => {
-//   console.log(port, "포트로 서버가 열렸습니다.");
-// });
+app.listen(port, () => {
+  console.log(port, "포트로 서버가 열렸습니다.");
+});
 
-http.createServer(app).listen(3000);
-https.createServer(options, app).listen(443);
+// http.createServer(app).listen(3000);
+// https.createServer(options, app).listen(443);
