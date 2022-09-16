@@ -1,6 +1,3 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
-
 name: Node.js CI
 
 on:
@@ -10,27 +7,30 @@ on:
     branches: [ "master" ]
 
 jobs:
-  deploy:
-    name: CD Pipeline
-    runs-on: ubuntu-18.04
+  build:
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
         node-version: [16.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-      - name: Deploy
-        uses: appleboy/ssh-action@master
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
         with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci
+      - name: SSH Remote Commands
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          key: ${{ secrets.EC2_KEY }}
           host: ${{ secrets.EC2_IP }}
           username: ${{ secrets.EC2_NAME }}
-          key: ${{ secrets.EC2_KEY }}
           port: ${{ secrets.EC2_PORT }}
           script: |
+            pm2 delete all
             cd /home/ubuntu/spa_node/spa_node1
-            git pull origin master
-            npm ci
-            sudo pm2 stop 0
-            sudo pm2 kill
+            git pull
+            npm install
             sudo pm2 start app.js
