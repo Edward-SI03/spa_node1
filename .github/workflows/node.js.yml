@@ -29,8 +29,8 @@ jobs:
           username: ${{ secrets.EC2_NAME }}
           port: ${{ secrets.EC2_PORT }}
           script: |
-            pm2 delete all
-            cd /home/ubuntu/spa_node/spa_node1
+            sudo pm2 delete all
+            cd /home/${{ secrets.EC2_NAME }}/spa_node/spa_node1
             git pull
             npm install
             sudo pm2 start app.js
