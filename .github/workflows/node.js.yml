@@ -30,7 +30,7 @@ jobs:
           port: ${{ secrets.EC2_PORT }}
           script: |
             sudo pm2 delete all
-            cd /home/${{ secrets.EC2_NAME }}/spa_node/spa_node1
-            git pull
+            cd /home/ubuntu/spa_node/spa_node1
+            sudo git pull
             npm install
             sudo pm2 start app.js
