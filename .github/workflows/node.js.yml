@@ -26,6 +26,6 @@ jobs:
           script: |
             sudo pm2 delete all
             cd /home/ubuntu/spa_node/spa_node1
-            sudo git pull
+            git pull origin master
             npm install
             sudo pm2 start app.js
