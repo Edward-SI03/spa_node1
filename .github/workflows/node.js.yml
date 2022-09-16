@@ -29,8 +29,8 @@ jobs:
           port: ${{ secrets.EC2_PORT }}
           script: |
             cd /home/ubuntu/spa_node/spa_node1
-            sudo git pull origin master
-            sudo npm ci
+            git pull origin master
+            npm ci
             sudo pm2 stop 0
             sudo pm2 kill
             sudo pm2 start app.js
